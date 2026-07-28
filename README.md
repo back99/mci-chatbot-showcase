@@ -76,23 +76,21 @@ TLS health check. Rollback = redeploy an older SHA.
 ## Architecture (overview)
 
 ```mermaid
-flowchart TB
-    subgraph Kiosk["iPad Safari kiosk"]
-        FE["React + TypeScript PWA<br/>voice + text"]
-    end
-    subgraph Server["Backend — FastAPI"]
-        API["routers · services<br/>guardrails · metadata logging"]
-    end
-    subgraph External["External services"]
-        LLM["Commercial LLM (Claude)"]
-        VOICE["AWS Transcribe / Polly"]
-    end
-    DB[("PostgreSQL<br/>de-identified metadata only")]
+flowchart LR
+    FE["iPad Kiosk<br/>React + TypeScript PWA<br/>(voice + text)"]
+    API["FastAPI Backend<br/>(sessions, guardrails,<br/>metadata logging)"]
+    SF["Safety Filter<br/>(checks every message<br/>BEFORE the LLM)"]
+    LLM["Claude API<br/>(persona + safety prompt)"]
+    LOCK["CrisisLock<br/>988 screen + staff alert"]
+    VOICE["AWS Transcribe / Polly<br/>(voice in / out)"]
+    DB[("PostgreSQL<br/>de-identified<br/>metadata only")]
 
-    FE -->|"REST / WebSocket (streamed chat)"| API
-    API -->|"prompt relay"| LLM
-    API -->|"audio in / out (server-relayed)"| VOICE
-    API -->|"profiles + metadata"| DB
+    FE -->|"HTTPS / WebSocket"| API
+    API --> SF
+    SF -->|"normal"| LLM
+    SF -.->|"crisis"| LOCK
+    API --> VOICE
+    API --> DB
 ```
 
 Full system design, data model, and identity/authorization model:
