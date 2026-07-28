@@ -13,8 +13,14 @@ a future **NIH R01** application.
 
 ## 🎬 Demo
 
-*(Demo video coming soon — iPad kiosk: pairing → onboarding → hands-free voice
-conversation → coordinator dashboard.)*
+iPad kiosk running a **hands-free voice conversation** on dummy data — the
+companion speaks, the mic auto-opens (`Listening…`), speech is auto-transcribed
+and answered, through the session close.
+
+[![Demo preview — hands-free voice conversation on the iPad kiosk](media/demo-preview.gif)](media/demo.mp4)
+
+**▶ [Watch the full demo (2:44, MP4)](media/demo.mp4)** — proactive AI greeting
+→ voice turn cycle → graceful session close.
 
 ## What it is
 

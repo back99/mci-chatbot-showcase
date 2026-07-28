@@ -1,5 +1,6 @@
-Demo assets live here.
+Demo assets.
 
-Planned:
-- demo.mp4 or demo.gif — iPad kiosk: pairing -> onboarding -> hands-free voice chat -> coordinator dashboard
-- screenshots/ — dashboard, onboarding wizard, crisis-lock screen (dummy data only)
+- `demo.mp4` — iPad screen recording (2:44, H.264 1280p): proactive AI greeting
+  -> hands-free voice turn cycle (Listening / Companion is speaking) ->
+  graceful session close. Dummy participant, no PHI.
+- `demo-preview.gif` — short preview embedded in the root README.
