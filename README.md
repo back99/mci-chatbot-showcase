@@ -109,7 +109,7 @@ Full system design, data model, and identity/authorization model:
 Federated Learning parallelization and clinical ML.
 [GitHub](https://github.com/back99) ·
 [LinkedIn](https://www.linkedin.com/in/seungbum-jung-6a105317a/) ·
-sjung15@slu.edu
+seungbum.jung@slu.edu
 
 *All personas and data shown anywhere in this repository are fictional. No PHI
 is present in the system at this phase.*
