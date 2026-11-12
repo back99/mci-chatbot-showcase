@@ -35,9 +35,9 @@ path:
 |---|---|
 | **Per-sentence streaming TTS** | Speech starts on the *first completed sentence* of the LLM stream, not the full reply; synthesis overlaps playback of earlier clips via an ordered audio queue |
 | **Speculative early STT** | Transcription starts *during* the VAD silence wait, overlapping the confirmation window instead of following it |
-| **Prompt caching** | The stable system-prompt prefix is cached at the provider, cutting first-token time |
-| **Silence-tail trimming** | The trailing silence the VAD needed is trimmed before upload — less audio to transcribe |
-| **AWS client singletons** | No per-request client construction on the hot path |
+| **Prompt caching** | Applied to the stable system-prompt prefix; the effect is not yet measured (an early prompt was below the provider's minimum cache length) |
+| **Silence-tail trimming** | The trailing silence the VAD needed is trimmed before upload: audio to transcribe went from about 3.5 s to 1.3 s |
+| **AWS client singletons** | No per-request client construction on the hot path: Polly call went from about 1,418 ms to 550 ms |
 | **Model choice** | Evaluated a faster small model for latency; reverted to a stronger model (comprehension over speed) once the latency work above absorbed the slower first token — an explicit, measured trade-off |
 
 ## Privacy guarantees

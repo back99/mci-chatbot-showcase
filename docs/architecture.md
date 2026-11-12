@@ -139,7 +139,7 @@ erDiagram
     sessions ||--o| ratings : "0..1"
     sessions ||--o{ session_topics : labels
     sessions ||--o{ session_clinical_flags : "5 domains"
-    sessions ||--o{ session_safety_flags : "Code Blue (timestamp only)"
+    sessions ||--o{ session_safety_flags : "Code Blue (event + triggering message)"
 ```
 
 Design details worth noting:
@@ -157,9 +157,9 @@ Design details worth noting:
 - **Withdraw ≠ delete:** deletion is allowed only for zero-session
   mis-registrations; participants with data can only be status-withdrawn,
   preserving everything.
-- **Privacy invariant (non-negotiable):** `session_safety_flags` stores
-  session id + timestamp only; the safety filter returns a boolean, never
-  matched text; CSV exports exclude the Code Blue table.
+- **Privacy invariant:** safety events keep only the message that triggered
+  them, for staff review; no other conversation text is stored, and CSV
+  exports exclude the Code Blue table.
 
 ---
 
@@ -203,7 +203,7 @@ accept staff bearer **or** the paired device's token. Cross-participant access
 
 ## 7. Quality & delivery
 
-**Testing (690+ automated tests).**
+**Testing.**
 
 | Layer | What runs |
 |---|---|

@@ -56,7 +56,7 @@ Button-free turn cycle: the companion speaks (per-sentence streaming TTS — aud
 starts on the first completed sentence), the mic auto-opens, on-device VAD
 detects end-of-speech, and the transcript is sent through the same
 safety-checked path as typed text. Latency engineering includes speculative
-early STT (transcription overlaps the silence wait), prompt caching, silence-tail
+early STT (transcription overlaps the silence wait), silence-tail
 trimming, and iOS mic ducking. Raw audio is **discarded after STT** — never
 stored.
 → [docs/voice-pipeline.md](docs/voice-pipeline.md)
@@ -83,18 +83,35 @@ TLS health check. Rollback = redeploy an older SHA.
 **🧩 Prompts as reviewable config.**
 Persona, always-on safety rules, participant context, a topic bank (5 domains,
 14 categories), and a 5-minute wrap-up instruction are separate files assembled
-per request, so the PI can review and edit them without touching code. Prompt
-caching is applied to the fixed system prompt, and LLM usage and cost are visible
-in the staff dashboard.
+per request, so the PI can review and edit them without touching code. LLM token
+usage is logged per call and visible in the staff dashboard.
 
 ## How it was built (AI-driven development)
 
 The code was written by a **Claude Code multi-agent team** (lead, server,
-frontend, mobile, AI, QA) working task → branch → PR → QA → squash merge.
-I designed how the LLM is used in the service, defined the tasks and agent
-instructions, reviewed and merged PRs, and built and ran the AWS infrastructure.
-Safety logic, session limits, and interface changes cannot change without my
-approval. Requirements came from the PI and the study coordinators.
+frontend, mobile, AI, QA): **184 PRs, 178 tasks, and about 43k lines across
+backend, web, and mobile in five months.** I designed how the LLM is used in the
+service and ran the team; requirements came from the PI and the study
+coordinators.
+
+- **Context design.** Each instruction is self-contained: background, the files
+  and scope to touch, what not to touch, how to verify, and the PR steps.
+  Architecture, DB, and API docs are maintained as agent context, and a task is
+  not done until those docs are updated.
+- **Team rules.** Folder ownership per role; one task, one branch, one PR; no
+  test means not done; verify on a running server (through nginx), not only in
+  unit tests; QA re-runs instead of trusting "done". By team rule, safety logic,
+  session limits, and interface changes merge only after my review.
+- **Automated gates.** CI runs backend, web, and mobile checks on every PR; dev
+  deploys only after green CI; prod deploys only tags already verified on dev.
+  Tests run in an isolated environment with real alerts and outside network
+  blocked. CI guards catch missing route permissions and nginx allowlist entries.
+- **Verifying the agents.** Running the PI's 15 crisis scenarios against the real
+  model found a sentence that both the rules and the AI pass missed, which became
+  a new pattern plus a regression scenario. A "mobile voice works" report turned
+  out to have zero speech-to-text calls in the logs, so it became a separate
+  device test. A deploy that broke every conversation turn was rolled back rather
+  than patched on the live server, then diagnosed on a branch and reintroduced.
 
 ## Architecture (overview)
 

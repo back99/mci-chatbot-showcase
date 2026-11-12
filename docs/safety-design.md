@@ -23,7 +23,7 @@ flowchart TD
     scan -->|no| chat["continue conversation (LLM)"]
     scan -->|yes| halt["halt conversation<br/>(message never reaches the LLM)"]
     halt --> lock["lock UI — CrisisLock screen<br/>988 hotline, no back button"]
-    lock --> flag["record de-identified flag<br/>(session id + timestamp only)"]
+    lock --> flag["record de-identified flag<br/>(event record + triggering message for staff review)"]
     flag --> alert["alert PI / dev / caregiver<br/>async, best-effort, off critical path"]
 ```
 
@@ -50,7 +50,7 @@ Never the message, keyword, or category.
 
 ## Storage & visibility
 
-- `session_safety_flags` rows hold **session id + timestamp only**.
+- Safety events keep only the message that triggered them (for staff review); no other conversation text is stored.
 - Staff dashboards surface a read-only "Code Blue occurred" badge per session —
   closing the gap where crises were recorded but invisible.
 - The research CSV export **excludes** the Code Blue table entirely.
@@ -65,6 +65,6 @@ level layer.
 ## Governance
 
 Prompts are config data (`.md`/`.yaml`) reviewable by clinicians without
-touching code. Changes to the crisis flow require human approval; clinical
+touching code. By team rule, changes to the crisis flow are merged only after human review; clinical
 judging criteria for metadata extraction are maintained as reviewable drafts
 pending PI/clinician sign-off.
