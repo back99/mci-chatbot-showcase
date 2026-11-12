@@ -36,8 +36,8 @@ metadata** for the research team.
 | Database | PostgreSQL — de-identified metadata only |
 | LLM | Commercial model via a provider-swappable client (Anthropic Claude; prompt-engineered, **no fine-tuning**) |
 | Voice | AWS Transcribe (streaming STT) + AWS Polly (TTS), fully server-relayed |
-| Deploy | Docker Compose · nginx · Let's Encrypt TLS · AWS ECR · CI/CD via GitHub Actions + SSM (no SSH) |
-| Tests | **690+ automated tests** — pytest (backend) + Vitest (frontend), E2E smoke tests in CI |
+| Deploy | Docker Compose, nginx, Let's Encrypt TLS, AWS EC2 + ECR, CI/CD via GitHub Actions (OIDC) + SSM (no SSH) |
+| Status | Research prototype; participant pilot planned after IRB approval (no real participants or PHI yet) |
 
 ## Highlights
 
@@ -45,8 +45,9 @@ metadata** for the research team.
 Every participant message is scanned by a code-level crisis filter **before it
 can reach the LLM** — keyword/pattern based, so it fires instantly even if the
 model is down. On detection: the conversation halts, the UI locks to a 988
-crisis screen (no back button), a de-identified flag is recorded (timestamp
-only — never content), and staff are alerted off the critical path. The LLM
+crisis screen (no back button), a safety event is recorded (only the triggering message is kept for staff review),
+and staff are alerted off the critical path. Only a person can clear the lock, and
+the AI second pass can only raise the risk level, never lower it. The LLM
 prompt carries a matching behavioral contract as defense in depth.
 → [docs/safety-design.md](docs/safety-design.md)
 
@@ -62,10 +63,10 @@ stored.
 
 **🔒 Privacy by design.**
 No names, DOBs, or transcripts in the database — participants are de-identified
-UUIDs with birth decade only. Conversation content lives in memory for the
-session and is never persisted or logged; at session close an LLM labelling
-pass writes back **labels only** (topics, rough durations, clinical-domain
-counts). Designed toward a HIPAA/BAA deployment from day one.
+UUIDs with birth decade only. Conversation text is never logged or written to the
+database (long-term context sits in a per-participant model memory store with a
+destruction path); at session close an LLM labelling pass writes back **labels
+only** (topics, rough durations, clinical-domain flags). Designed toward a HIPAA/BAA deployment from day one.
 
 **📊 Research operations built in.**
 Coordinator dashboard (staff-authenticated, JWT) with engagement charts,
@@ -78,6 +79,22 @@ with append-only history, and withdrawal flows that preserve data.
 `push to main` → CI (migrations + pytest on Postgres, lint + typecheck + Vitest
 + build) → images to ECR (git-SHA tagged) → SSM-triggered zero-SSH deploy →
 TLS health check. Rollback = redeploy an older SHA.
+
+**🧩 Prompts as reviewable config.**
+Persona, always-on safety rules, participant context, a topic bank (5 domains,
+14 categories), and a 5-minute wrap-up instruction are separate files assembled
+per request, so the PI can review and edit them without touching code. Prompt
+caching is applied to the fixed system prompt, and LLM usage and cost are visible
+in the staff dashboard.
+
+## How it was built (AI-driven development)
+
+The code was written by a **Claude Code multi-agent team** (lead, server,
+frontend, mobile, AI, QA) working task → branch → PR → QA → squash merge.
+I designed how the LLM is used in the service, defined the tasks and agent
+instructions, reviewed and merged PRs, and built and ran the AWS infrastructure.
+Safety logic, session limits, and interface changes cannot change without my
+approval. Requirements came from the PI and the study coordinators.
 
 ## Architecture (overview)
 
@@ -107,8 +124,8 @@ Full system design, data model, and identity/authorization model:
 **Seung Bum Jung** — M.S. Computer Science, Saint Louis University (HPC Lab).
 4+ years of production distributed systems (AWS) at Doverunner; research in
 Federated Learning parallelization and clinical ML.
-[GitHub](https://github.com/back99) ·
-[LinkedIn](https://www.linkedin.com/in/seungbum-jung-6a105317a/) ·
+[GitHub](https://github.com/back99) ,
+[LinkedIn](https://www.linkedin.com/in/seungbum-jung-6a105317a/) ,
 seungbum.jung@slu.edu
 
 *All personas and data shown anywhere in this repository are fictional. No PHI
